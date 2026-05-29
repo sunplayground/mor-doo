@@ -1,0 +1,31 @@
+name = "mor-doo"
+main = "src/index.ts"
+compatibility_date = "2026-05-07"
+
+[vars]
+LINE_CHANNEL_ID = "2010080146"
+AI_MODEL = "deepseek-v4-flash"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "mor-doo-db"
+database_id = "8e01d58c-60f7-4af2-8609-1070ac09d603"
+
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "mor-doo-data"
+
+[[queues.producers]]
+queue = "mor-doo-features"
+binding = "FEATURE_QUEUE"
+
+[[queues.consumers]]
+queue = "mor-doo-features"
+max_batch_size = 10
+max_batch_timeout = 30
+
+[triggers]
+crons = ["0 0 * * *", "0 13 * * 7", "0 17 * * *"]
+
+[observability]
+enabled = true

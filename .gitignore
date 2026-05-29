@@ -1,0 +1,9 @@
+node_modules/
+.wrangler/
+.dev.vars
+dist/
+.DS_Store
+.claude/
+documents/
+old_unused/
+AGENTS.md

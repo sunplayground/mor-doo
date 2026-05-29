@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>หมอดู — UX Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07070f;
+  --card: rgba(255,255,255,0.055);
+  --card-h: rgba(255,255,255,0.085);
+  --border: rgba(255,255,255,0.08);
+  --purple: #8b7cf8;
+  --purple-bg: rgba(139,124,248,0.12);
+  --purple-border: rgba(139,124,248,0.28);
+  --gold: #f0c060;
+  --gold-bg: rgba(240,192,96,0.1);
+  --gold-border: rgba(240,192,96,0.22);
+  --green: #34d399;
+  --red: #f87171;
+  --t1: #ffffff;
+  --t2: rgba(255,255,255,0.52);
+  --t3: rgba(255,255,255,0.26);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+body{
+  background:var(--bg);
+  font-family:'Inter','Noto Sans Thai',system-ui,sans-serif;
+  display:flex;
+  min-height:100vh;
+  overflow:hidden;
+  color:var(--t1);
+}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:196px;flex-shrink:0;
+  padding:28px 14px;
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;gap:2px;
+  overflow-y:auto;
+}
+.sidebar::-webkit-scrollbar{display:none}
+.sb-logo{font-size:17px;font-weight:800;letter-spacing:-0.03em;padding:6px 10px 18px;color:var(--t1)}
+.sb-logo span{color:var(--purple)}
+.sb-section{font-size:10px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:var(--t3);padding:12px 10px 6px}
+.nb{
+  background:none;border:none;color:var(--t2);font-family:inherit;font-size:13px;
+  padding:8px 10px;border-radius:9px;cursor:pointer;text-align:left;width:100%;
+  transition:all 0.14s;display:flex;align-items:center;gap:8px;
+}
+.nb:hover{background:rgba(255,255,255,0.05);color:var(--t1)}
+.nb.active{background:var(--purple-bg);color:var(--purple)}
+.nb-dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.55;flex-shrink:0}
+
+/* ── CENTER ── */
+.center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;gap:12px}
+.screen-lbl{font-size:11px;color:var(--t3);letter-spacing:0.07em;text-transform:uppercase}
+
+/* ── PHONE ── */
+.phone{
+  width:390px;height:844px;
+  background:#000;border-radius:52px;
+  border:10px solid #1c1c1c;
+  overflow:hidden;position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.07),0 50px 120px rgba(0,0,0,0.85);
+}
+.phone::before{
+  content:'';position:absolute;top:12px;left:50%;transform:translateX(-50%);
+  width:120px;height:34px;background:#000;border-radius:18px;z-index:200;
+}
+
+/* ── SCREENS ── */
+.screen{display:none;width:100%;height:100%;flex-direction:column;position:absolute;inset:0;overflow:hidden}
+.screen.active{display:flex}
+
+.sbar{
+  height:52px;flex-shrink:0;
+  display:flex;align-items:flex-end;justify-content:space-between;
+  padding:0 26px 8px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.75);
+  position:relative;z-index:10;
+}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.scroll::-webkit-scrollbar{display:none}
+
+/* tab bar */
+.tbar{
+  height:80px;flex-shrink:0;
+  background:rgba(0,0,0,0.72);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-around;padding:0 6px 14px;
+}
+.ti{display:flex;flex-direction:column;align-items:center;gap:4px;opacity:.38;flex:1;cursor:pointer;transition:opacity .2s}
+.ti.on{opacity:1}
+.ti.on .tico{color:var(--purple)}
+.tico{font-size:20px;line-height:1}
+.tlbl{font-size:9.5px;font-weight:600}
+
+/* nav header */
+.nh{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;flex-shrink:0}
+.back{background:rgba(255,255,255,0.09);border:none;color:var(--t1);width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ntitle{font-size:15px;font-weight:700;color:var(--t1)}
+
+/* shared components */
+.lbl{font-size:10.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--t3)}
+.btn-p{background:var(--purple);color:#fff;border:none;border-radius:15px;padding:16px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;letter-spacing:-0.01em;transition:all .18s}
+.btn-p:hover{filter:brightness(1.08)}
+.btn-g{background:none;color:var(--t2);border:1px solid rgba(255,255,255,0.11);border-radius:15px;padding:14px;font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;width:100%;transition:all .18s}
+.btn-g:hover{background:rgba(255,255,255,0.05);color:var(--t1)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px}
+.inp{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:13px;padding:15px 16px;font-size:15px;color:var(--t1);font-family:inherit;outline:none;width:100%;transition:border-color .18s}
+.inp:focus{border-color:var(--purple);background:rgba(139,124,248,0.07)}
+.inp::placeholder{color:var(--t3)}
+.pill{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.1);border-radius:20px;padding:5px 11px;font-size:12px;font-weight:600;color:var(--t1)}
+.pdot{width:7px;height:7px;border-radius:50%}
+
+/* ══════════════════════════════════ */
+/* S1  Splash                        */
+/* ══════════════════════════════════ */
+#s1{background:radial-gradient(ellipse 90% 55% at 50% 5%,rgba(100,55,220,.38) 0%,transparent 70%),var(--bg)}
+.orb{width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(139,124,248,.45) 0%,transparent 70%);position:absolute;top:55px;left:50%;transform:translateX(-50%);filter:blur(22px);animation:orb 5s ease-in-out infinite;pointer-events:none}
+@keyframes orb{0%,100%{transform:translateX(-50%) scale(1);opacity:.75}50%{transform:translateX(-50%) scale(1.12);opacity:1}}
+.s1-body{padding:0 26px;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
+.logo-icon{width:62px;height:62px;border-radius:19px;background:linear-gradient(135deg,#8b7cf8,#5b4cd8);display:flex;align-items:center;justify-content:center;font-size:27px;box-shadow:0 8px 28px rgba(139,124,248,.42)}
+.app-name{font-size:34px;font-weight:900;letter-spacing:-0.04em;margin:12px 0 5px}
+.app-tag{font-size:14px;color:var(--t2);text-align:center;line-height:1.55;margin-bottom:30px}
+.tools-row{display:flex;gap:11px;overflow-x:auto;padding:4px 0 14px;margin:0 -26px;padding-left:26px;padding-right:26px;scrollbar-width:none;width:calc(100% + 52px)}
+.tools-row::-webkit-scrollbar{display:none}
+.tcrd{flex-shrink:0;width:125px;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:15px;display:flex;flex-direction:column;gap:7px;cursor:pointer;transition:background .18s}
+.tcrd:hover{background:var(--card-h)}
+.tico2{font-size:26px}
+.tn-th{font-size:13px;font-weight:700;color:var(--t1);line-height:1.25}
+.tn-en{font-size:11px;color:var(--t3)}
+.fb{font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;background:rgba(52,211,153,.12);color:var(--green);padding:3px 8px;border-radius:20px;align-self:flex-start}
+.cta-box{width:100%;display:flex;flex-direction:column;gap:11px;padding-top:20px}
+.tiny{font-size:11px;color:var(--t3);text-align:center;line-height:1.7}
+
+/* ══════════════════════════════════ */
+/* S2  Free Tool Input               */
+/* ══════════════════════════════════ */
+#s2{background:var(--bg)}
+.ti-inner{flex:1;overflow-y:auto;padding:10px 22px 40px;scrollbar-width:none}
+.ti-inner::-webkit-scrollbar{display:none}
+.th-hero{text-align:center;padding:18px 0 28px}
+.th-icon{font-size:52px;margin-bottom:14px}
+.th-title{font-size:25px;font-weight:800;letter-spacing:-0.03em;margin-bottom:7px}
+.th-sub{font-size:14px;color:var(--t2);line-height:1.55}
+.frow{display:flex;gap:10px}
+.frow .fg{flex:1}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:11px}
+.hint{font-size:12px;color:var(--t3);line-height:1.5;margin-bottom:14px}
+.free-check{display:inline-flex;align-items:center;gap:7px;background:rgba(52,211,153,.1);color:var(--green);border-radius:20px;padding:7px 13px;font-size:12px;font-weight:600;margin-bottom:18px}
+.pv-item{display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.pv-item:last-child{border-bottom:none}
+.pv-ico{font-size:16px;flex-shrink:0;margin-top:2px}
+.pv-txt{font-size:13px;color:var(--t2);line-height:1.5}
+
+/* ══════════════════════════════════ */
+/* S3  Free Tool Result              */
+/* ══════════════════════════════════ */
+#s3{background:var(--bg)}
+.res-hero{background:linear-gradient(180deg,rgba(139,124,248,.18) 0%,transparent 100%);padding:22px 22px 18px;text-align:center}
+.score-ring{width:110px;height:110px;border-radius:50%;border:3.5px solid var(--purple);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 0 36px rgba(139,124,248,.28)}
+.score-val{font-size:34px;font-weight:900;letter-spacing:-0.02em}
+.score-sub{font-size:10px;color:var(--t2);font-weight:500}
+.verdict{font-size:19px;font-weight:700;margin-bottom:5px}
+.verdict-sub{font-size:13px;color:var(--t2);line-height:1.5}
+.ri{display:flex;align-items:flex-start;gap:11px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.ri:last-child{border-bottom:none}
+.ri-ico{font-size:17px;flex-shrink:0;margin-top:2px}
+.ri-txt{font-size:14px;color:var(--t2);line-height:1.5}
+.ri-txt strong{color:var(--t1);font-weight:700;display:block;margin-bottom:2px}
+.locked-wrap{background:var(--card);border:1px solid var(--border);border-radius:20px;margin:0 22px 11px;position:relative;overflow:hidden}
+.locked-inner{padding:18px;filter:blur(5px);pointer-events:none;user-select:none;opacity:.38}
+.lock-fog{position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,7,15,0) 10%,rgba(7,7,15,.97) 55%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:18px;gap:11px}
+.lock-msg{font-size:13px;color:var(--t2);text-align:center;line-height:1.5}
+.shr-row{display:flex;gap:10px;padding:0 22px 14px}
+
+/* ══════════════════════════════════ */
+/* S4  Registration                  */
+/* ══════════════════════════════════ */
+#s4{background:var(--bg)}
+.steps{display:flex;gap:5px;padding:6px 22px;justify-content:center}
+.sdot{height:3px;border-radius:2px;flex:1;background:rgba(255,255,255,.14);transition:background .28s}
+.sdot.done{background:var(--purple)}
+.sdot.now{background:var(--t1)}
+.reg-inner{flex:1;padding:18px 22px 36px;display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:none}
+.reg-inner::-webkit-scrollbar{display:none}
+.reg-step-lbl{font-size:10.5px;font-weight:700;color:var(--purple);letter-spacing:0.09em;text-transform:uppercase;margin-bottom:7px}
+.reg-title{font-size:27px;font-weight:900;letter-spacing:-0.03em;margin-bottom:7px;line-height:1.15}
+.reg-sub{font-size:14px;color:var(--t2);line-height:1.58;margin-bottom:24px}
+.social-btn{display:flex;align-items:center;justify-content:center;gap:9px;background:var(--card);border:1px solid var(--border);border-radius:15px;padding:15px;font-size:14px;font-weight:700;color:var(--t1);font-family:inherit;cursor:pointer;width:100%;margin-bottom:10px;transition:background .18s}
+.social-btn:hover{background:var(--card-h)}
+.sbi{font-size:19px}
+.divrow{display:flex;align-items:center;gap:11px;margin:6px 0 16px}
+.divline{flex:1;height:1px;background:var(--border)}
+.divtxt{font-size:12px;color:var(--t3)}
+.fine{font-size:11px;color:var(--t3);text-align:center;line-height:1.7}
+.fine span{color:var(--purple)}
+
+/* ══════════════════════════════════ */
+/* S5  ผูกดวง Reveal                 */
+/* ══════════════════════════════════ */
+#s5{background:radial-gradient(ellipse 100% 50% at 50% -5%,rgba(100,55,220,.48) 0%,transparent 60%),var(--bg)}
+.rv-scroll{flex:1;overflow-y:auto;padding:0 22px 40px;scrollbar-width:none}
+.rv-scroll::-webkit-scrollbar{display:none}
+.rv-hero{text-align:center;padding:16px 0 24px}
+.asc-badge{display:inline-flex;flex-direction:column;align-items:center;background:var(--purple-bg);border:1px solid var(--purple-border);border-radius:22px;padding:18px 26px;margin-bottom:18px;gap:3px}
+.asc-lbl{font-size:10.5px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--purple)}
+.asc-val{font-size:30px;font-weight:900;letter-spacing:-0.02em}
+.asc-planet{font-size:13px;color:var(--t2)}
+.rv-headline{font-size:21px;font-weight:800;letter-spacing:-0.025em;margin-bottom:5px;line-height:1.3}
+.rv-sub{font-size:14px;color:var(--t2);line-height:1.6}
+.trait-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
+.tr{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:13px}
+.tr.wide{grid-column:1/-1}
+.tr-ico{font-size:21px;margin-bottom:5px}
+.tr-name{font-size:13px;font-weight:700;margin-bottom:2px}
+.tr-desc{font-size:12px;color:var(--t2);line-height:1.45}
+.domain-card{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:15px;display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;cursor:pointer;transition:background .18s}
+.domain-card:hover{background:var(--card-h)}
+.domain-card.hi{background:var(--purple-bg);border-color:var(--purple-border)}
+.dc-left{display:flex;align-items:center;gap:11px}
+.dc-ico{font-size:21px}
+.dc-name{font-size:14px;font-weight:700;margin-bottom:2px}
+.dc-sub{font-size:12px;color:var(--t2)}
+.dc-sub.hl{color:var(--purple)}
+
+/* ══════════════════════════════════ */
+/* S6  Home (post-login)             */
+/* ══════════════════════════════════ */
+#s6{background:var(--bg)}
+.hdr{padding:14px 22px 0;display:flex;align-items:center;justify-content:space-between}
+.greet{font-size:21px;font-weight:800;letter-spacing:-0.03em;margin-bottom:2px}
+.hdate{font-size:12px;color:var(--t2)}
+.ava{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--purple),#5040d0);display:flex;align-items:center;justify-content:center;font-size:17px}
+.daily-feat{margin:14px 22px 10px;background:linear-gradient(135deg,rgba(139,124,248,.18),rgba(80,48,200,.1));border:1px solid rgba(139,124,248,.2);border-radius:22px;padding:18px;position:relative;overflow:hidden;cursor:pointer}
+.daily-feat::after{content:'✨';position:absolute;right:18px;top:18px;font-size:22px}
+.df-lbl{font-size:10.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--purple);margin-bottom:7px}
+.df-title{font-size:17px;font-weight:700;line-height:1.35;margin-bottom:11px}
+.moon-bar{margin:0 22px 12px;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:13px}
+.m-ico{font-size:26px}
+.m-name{font-size:14px;font-weight:700;margin-bottom:2px}
+.m-sub{font-size:12px;color:var(--t2)}
+.m-badge{font-size:10.5px;font-weight:700;color:var(--gold);background:var(--gold-bg);border:1px solid var(--gold-border);padding:4px 10px;border-radius:20px;white-space:nowrap}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;padding:0 22px 12px}
+.fc{background:var(--card);border:1px solid var(--border);border-radius:19px;padding:17px;cursor:pointer;transition:background .18s}
+.fc:hover{background:var(--card-h)}
+.fc-ico{font-size:25px;margin-bottom:9px}
+.fc-name{font-size:14px;font-weight:700;margin-bottom:3px}
+.fc-sub{font-size:11px;color:var(--t2);line-height:1.4}
+.fc-badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;background:var(--purple-bg);color:var(--purple);padding:2px 7px;border-radius:20px;margin-top:7px}
+.sec-hdr{padding:4px 22px 10px;font-size:10.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--t3)}
+
+/* ══════════════════════════════════ */
+/* S7  Daily Reading                 */
+/* ══════════════════════════════════ */
+#s7{background:var(--bg)}
+.dr-scroll{flex:1;overflow-y:auto;padding:0 22px 40px;scrollbar-width:none}
+.dr-scroll::-webkit-scrollbar{display:none}
+.dr-hero{text-align:center;padding:10px 0 22px}
+.date-badge{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:6px 13px;font-size:12px;color:var(--t2);margin-bottom:13px;font-weight:500}
+.dr-title{font-size:23px;font-weight:800;letter-spacing:-0.03em;margin-bottom:5px}
+.dr-sub{font-size:14px;color:var(--t2);line-height:1.6}
+.lucky-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}
+.lk{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:13px 8px;text-align:center}
+.lk-ico{font-size:19px;margin-bottom:5px}
+.lk-lbl{font-size:9px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--t3);margin-bottom:3px}
+.lk-val{font-size:14px;font-weight:800}
+.swatch{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin-right:3px}
+.rcard{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:11px}
+.rcard-lbl{font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--t3);margin-bottom:9px}
+.rtext{font-size:14px;color:var(--t2);line-height:1.75}
+.blur-wrap{position:relative;overflow:hidden;border-radius:18px;margin-bottom:11px;background:var(--card);border:1px solid var(--border)}
+.blur-inner{padding:18px;filter:blur(5px);pointer-events:none;user-select:none;opacity:.35}
+.blur-fog{position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,7,15,0) 15%,rgba(7,7,15,.96) 50%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:16px;gap:10px}
+.blur-msg{font-size:13px;color:var(--t2);text-align:center;line-height:1.5}
+.aus-card{background:linear-gradient(135deg,rgba(240,192,96,.1),rgba(240,192,96,.05));border:1px solid var(--gold-border);border-radius:18px;padding:18px;margin-bottom:11px}
+.aus-time{font-size:28px;font-weight:900;color:var(--gold);letter-spacing:-0.02em;margin-bottom:4px}
+.aus-sub{font-size:13px;color:rgba(240,192,96,.65);font-weight:500}
+
+/* ══════════════════════════════════ */
+/* S8  AI Chat                       */
+/* ══════════════════════════════════ */
+#s8{background:var(--bg)}
+.chat-status{padding:3px 18px 8px;display:flex;align-items:center;gap:8px}
+.online-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse2 2s ease-in-out infinite}
+@keyframes pulse2{0%,100%{opacity:1}50%{opacity:.45}}
+.online-txt{font-size:12px;color:var(--t2)}
+.chat-scroll{flex:1;overflow-y:auto;padding:8px 16px;scrollbar-width:none;display:flex;flex-direction:column;gap:14px}
+.chat-scroll::-webkit-scrollbar{display:none}
+.mrow{display:flex;gap:9px;align-items:flex-end}
+.mrow.u{flex-direction:row-reverse}
+.mav{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--purple),#5040d0);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.mb{max-width:80%;background:var(--card);border:1px solid var(--border);border-radius:18px 18px 18px 4px;padding:12px 14px;font-size:13.5px;color:var(--t2);line-height:1.62}
+.mb strong{color:var(--t1)}
+.mrow.u .mb{background:var(--purple);border-color:var(--purple);color:#fff;border-radius:18px 18px 4px 18px}
+.mmeta{font-size:10.5px;color:var(--t3);margin-top:3px;padding:0 3px}
+.mrow.u .mmeta{text-align:right}
+.typing{display:flex;gap:4px;align-items:center;padding:2px 0}
+.td{width:6px;height:6px;border-radius:50%;background:var(--t3);animation:typ 1.2s ease-in-out infinite}
+.td:nth-child(2){animation-delay:.2s}
+.td:nth-child(3){animation-delay:.4s}
+@keyframes typ{0%,80%,100%{transform:scale(1);opacity:.38}40%{transform:scale(1.25);opacity:1}}
+.limit-bar{margin:0 15px 7px;background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:11px;padding:9px 13px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--gold)}
+.limit-bar a{font-weight:700;cursor:pointer;color:var(--gold)}
+.chat-bar{padding:7px 15px 14px;display:flex;gap:9px;align-items:flex-end}
+.chat-inp{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:12px 15px;font-size:14px;color:var(--t1);font-family:inherit;outline:none;resize:none;line-height:1.4;min-height:44px}
+.chat-inp::placeholder{color:var(--t3)}
+.chat-inp:focus{border-color:var(--purple)}
+.send{width:44px;height:44px;border-radius:50%;background:var(--purple);border:none;color:#fff;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:filter .18s}
+.send:hover{filter:brightness(1.1)}
+
+/* ══════════════════════════════════ */
+/* S9  Tarot                         */
+/* ══════════════════════════════════ */
+#s9{background:radial-gradient(ellipse 85% 45% at 50% 0%,rgba(55,15,110,.6) 0%,transparent 65%),var(--bg)}
+.tr-scroll{flex:1;overflow-y:auto;padding:0 22px 40px;scrollbar-width:none}
+.tr-scroll::-webkit-scrollbar{display:none}
+.tr-hero{text-align:center;padding:14px 0 24px}
+.tr-title{font-size:23px;font-weight:800;letter-spacing:-0.03em;margin-bottom:5px}
+.tr-sub{font-size:14px;color:var(--t2);line-height:1.6}
+.tr-inp{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);border-radius:15px;padding:13px 15px;font-size:14px;color:var(--t1);font-family:inherit;outline:none;width:100%;margin-bottom:22px}
+.tr-inp::placeholder{color:var(--t3)}
+.tr-inp:focus{border-color:var(--purple)}
+.cards-row{display:flex;gap:13px;justify-content:center;margin-bottom:10px}
+.tcard{flex:1;max-width:90px;aspect-ratio:2/3.4;border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.tcard.fd{background:linear-gradient(135deg,#1e0a3c,#3d1a7a);border:1.5px solid rgba(139,124,248,.3)}
+.tcard.fd::before{content:'✦';font-size:30px;color:rgba(139,124,248,.45)}
+.tcard.rv{background:linear-gradient(135deg,rgba(139,124,248,.18),rgba(55,15,110,.3));border:1.5px solid var(--purple-border);box-shadow:0 6px 28px rgba(139,124,248,.18)}
+.tcard-inner{display:flex;flex-direction:column;align-items:center;padding:9px 7px;gap:5px;height:100%;justify-content:center}
+.tcard-icon{font-size:28px}
+.tcard-name{font-size:10px;font-weight:700;text-align:center;line-height:1.3}
+.tpos-lbl{font-size:9px;color:var(--t3);font-weight:600;letter-spacing:0.04em;text-align:center}
+.tr-labels{display:flex;gap:13px;justify-content:center;margin-bottom:18px}
+.tr-lbl-item{flex:1;max-width:90px;text-align:center;font-size:10px;color:var(--t3);font-weight:600;letter-spacing:0.04em}
+.reading-box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px}
+.rb-title{font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--t3);margin-bottom:11px}
+.rb-para{font-size:13.5px;color:var(--t2);line-height:1.7;margin-bottom:11px}
+.rb-para:last-child{margin-bottom:0}
+.rb-para strong{color:var(--t1)}
+.rb-hint{text-align:center;font-size:13px;color:var(--t3);padding:10px 0 2px}
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<div class="sidebar">
+  <div class="sb-logo">หมอดู <span>✦</span></div>
+
+  <div class="sb-section">Pre-login</div>
+  <button class="nb active" onclick="show('s1',this)"><span class="nb-dot"></span>Splash / Home</button>
+  <button class="nb" onclick="show('s2',this)"><span class="nb-dot"></span>Free Tool Input</button>
+  <button class="nb" onclick="show('s3',this)"><span class="nb-dot"></span>Free Tool Result</button>
+  <button class="nb" onclick="show('s4',this)"><span class="nb-dot"></span>Registration</button>
+  <button class="nb" onclick="show('s5',this)"><span class="nb-dot"></span>ผูกดวง Reveal</button>
+
+  <div class="sb-section">Post-login</div>
+  <button class="nb" onclick="show('s6',this)"><span class="nb-dot"></span>Home</button>
+  <button class="nb" onclick="show('s7',this)"><span class="nb-dot"></span>Daily Reading</button>
+  <button class="nb" onclick="show('s8',this)"><span class="nb-dot"></span>AI Chat (หมอดู)</button>
+  <button class="nb" onclick="show('s9',this)"><span class="nb-dot"></span>Tarot Reading</button>
+</div>
+
+<!-- ── CENTER ── -->
+<div class="center">
+  <div class="screen-lbl" id="slbl">Pre-login — Splash / Home</div>
+
+  <div class="phone">
+    <div style="position:relative;width:100%;height:100%">
+
+    <!-- ══════════════ S1: Splash ══════════════ -->
+    <div class="screen active" id="s1">
+      <div class="orb"></div>
+      <div class="sbar"><span>9:41</span><span style="letter-spacing:0.03em">●●● 5G ▮</span></div>
+      <div class="scroll">
+        <div class="s1-body">
+          <div style="height:14px"></div>
+          <div class="logo-icon">🔮</div>
+          <div class="app-name">หมอดู</div>
+          <div class="app-tag">ที่ปรึกษาส่วนตัวของคุณ<br>ตลอด 24 ชั่วโมง</div>
+          <div class="lbl" style="align-self:flex-start;margin-bottom:11px">ทดลองใช้ฟรี — ไม่ต้องสมัคร</div>
+        </div>
+
+        <div class="tools-row">
+          <div class="tcrd"><div class="tico2">📱</div><div class="tn-th">เบอร์มงคล</div><div class="tn-en">Phone Checker</div><div class="fb">Free</div></div>
+          <div class="tcrd"><div class="tico2">🚗</div><div class="tn-th">ทะเบียนรถ</div><div class="tn-en">Car Plate</div><div class="fb">Free</div></div>
+          <div class="tcrd"><div class="tico2">✍️</div><div class="tn-th">ชื่อมงคล</div><div class="tn-en">Name Analysis</div><div class="fb">Free</div></div>
+          <div class="tcrd"><div class="tico2">⚠️</div><div class="tn-th">ปีชง</div><div class="tn-en">Bad Year Check</div><div class="fb">Free</div></div>
+          <div class="tcrd"><div class="tico2">💤</div><div class="tn-th">ทำนายฝัน</div><div class="tn-en">Dream Reader</div><div class="fb">Free</div></div>
+        </div>
+
+        <div class="s1-body">
+          <div class="cta-box">
+            <button class="btn-p">เริ่มต้นใช้งาน — ฟรี 7 วัน</button>
+            <button class="btn-g">เข้าสู่ระบบ</button>
+            <div class="tiny">ไม่ต้องบัตรเครดิต · ยกเลิกได้ทุกเมื่อ<br>หลังทดลองฟรี 199฿/เดือน</div>
+          </div>
+        </div>
+        <div style="height:40px"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ S2: Free Tool Input ══════════════ -->
+    <div class="screen" id="s2">
+      <div class="sbar"><span>9:41</span><span>●●● 5G ▮</span></div>
+      <div class="nh">
+        <button class="back">←</button>
+        <span class="ntitle">ปีชง Checker</span>
+        <div style="width:32px"></div>
+      </div>
+      <div class="ti-inner">
+        <div class="th-hero">
+          <div class="th-icon">⚠️</div>
+          <div class="th-title">ตรวจสอบปีชง</div>
+          <div class="th-sub">ตรวจสอบว่าปีนี้ดวงของคุณ<br>มีพื้นที่ชีวิตใดที่ต้องระวัง</div>
+        </div>
+
+        <div class="free-check">✓ ฟรี — ไม่ต้องสมัครสมาชิก</div>
+
+        <div class="fg">
+          <div class="lbl">วันเกิด</div>
+          <input class="inp" type="text" placeholder="DD / MM / YYYY">
+        </div>
+        <div class="frow">
+          <div class="fg">
+            <div class="lbl">เวลาเกิด</div>
+            <input class="inp" type="text" placeholder="HH : MM">
+          </div>
+          <div class="fg">
+            <div class="lbl">ช่วงเวลา</div>
+            <input class="inp" type="text" placeholder="ไม่ทราบ">
+          </div>
+        </div>
+        <div class="hint">💡 เวลาเกิดทำให้ผลแม่นยำขึ้น แต่ไม่บังคับ</div>
+        <button class="btn-p">ตรวจสอบเลย →</button>
+
+        <div style="padding:22px 0 0;border-top:1px solid var(--border);margin-top:22px">
+          <div class="lbl" style="margin-bottom:11px">ผลที่จะได้รับ</div>
+          <div class="pv-item"><div class="pv-ico">🔓</div><div class="pv-txt">ปีนี้ชงหรือไม่? พื้นที่ชีวิตใดที่ต้องระวัง</div></div>
+          <div class="pv-item"><div class="pv-ico">🔓</div><div class="pv-txt">สรุปสั้น 3-4 จุดเสี่ยงหลัก</div></div>
+          <div class="pv-item"><div class="pv-ico" style="opacity:.4">🔒</div><div class="pv-txt" style="opacity:.4">คำแนะนำเต็มรูปแบบ + วิธีแก้ไข (สมาชิก)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ S3: Free Tool Result ══════════════ -->
+    <div class="screen" id="s3">
+      <div class="sbar"><span>9:41</span><span>●●● 5G ▮</span></div>
+      <div class="nh">
+        <button class="back">←</button>
+        <span class="ntitle">ผลการตรวจสอบ</span>
+        <div style="width:32px"></div>
+      </div>
+      <div class="scroll">
+        <div class="res-hero">
+          <div class="score-ring">
+            <div class="score-val" style="color:#f87171">ชง</div>
+            <div class="score-sub">ปี 2568</div>
+          </div>
+          <div class="verdict" style="color:#f87171">⚠️ ปีนี้ต้องระวัง</div>
+          <div class="verdict-sub">ดวงของคุณมี 3 พื้นที่หลัก<br>ที่ต้องระวังเป็นพิเศษ</div>
+        </div>
+
+        <div class="card" style="margin:0 22px 11px">
+          <div class="lbl" style="margin-bottom:13px">ผลฟรี — 3 พื้นที่หลัก</div>
+          <div class="ri"><div class="ri-ico">💼</div><div class="ri-txt"><strong>การงาน</strong>อาจมีการเปลี่ยนแปลงที่ไม่คาดฝัน ควรรอบคอบในการตัดสินใจใหญ่</div></div>
+          <div class="ri"><div class="ri-ico">💰</div><div class="ri-txt"><strong>การเงิน</strong>ระวังการลงทุนในช่วงกลางปี โดยเฉพาะเดือน 6-8</div></div>
+          <div class="ri"><div class="ri-ico">❤️</div><div class="ri-txt"><strong>ความรัก</strong>ต้องการการสื่อสารที่ดีขึ้น ระวังความเข้าใจผิด</div></div>
+        </div>
+
+        <div class="locked-wrap">
+          <div class="locked-inner">
+            <div class="lbl" style="margin-bottom:12px">คำแนะนำเฉพาะตัว + วิธีแก้ชง</div>
+            <div class="ri"><div class="ri-ico">🙏</div><div class="ri-txt"><strong>วัดที่แนะนำ</strong>วัดพระแก้ว ช่วงเดือน 3 ตรงกับเวลามงคลที่สุด</div></div>
+            <div class="ri"><div class="ri-ico">🎨</div><div class="ri-txt"><strong>สีเสริมดวง</strong>สีม่วง สีขาว ใส่วันพฤหัสบดี เสริมดาวประจำตัว</div></div>
+            <div class="ri"><div class="ri-ico">⏰</div><div class="ri-txt"><strong>ฤกษ์แก้ชง</strong>13 มีนาคม 2568 เวลา 09:00-11:00</div></div>
+          </div>
+          <div class="lock-fog">
+            <div class="lock-msg">🔒 ดูคำแนะนำเต็มและวิธีแก้ชงเฉพาะตัว</div>
+            <button class="btn-p" style="font-size:14px;padding:13px">สมัครสมาชิก — ฟรี 7 วัน</button>
+          </div>
+        </div>
+
+        <div class="shr-row">
+          <button class="btn-g" style="font-size:13px">📤 แชร์ผลลัพธ์</button>
+          <button class="btn-g" style="font-size:13px">💾 บันทึก</button>
+        </div>
+        <div style="height:22px"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ S4: Registration ══════════════ -->
+    <div class="screen" id="s4">
+      <div class="sbar"><span>9:41</span><span>●●● 5G ▮</span></div>
+      <div class="steps">
+        <div class="sdot done"></div>
+        <div class="sdot now"></div>
+        <div class="sdot"></div>
+        <div class="sdot"></div>
+      </div>
+      <div class="reg-inner">
+        <div class="reg-step-lbl">ขั้นตอน 2 จาก 4</div>
+        <div class="reg-title">เข้าสู่ระบบ</div>
+        <div class="reg-sub">เพื่อผูกดวงและเปิดใช้ฟีเจอร์เต็มรูปแบบ ข้อมูลของคุณปลอดภัยและเป็นส่วนตัว</div>
+
+        <button class="social-btn"><span class="sbi">💚</span>เข้าสู่ระบบด้วย LINE</button>
+        <button class="social-btn"><span class="sbi">🔵</span>เข้าสู่ระบบด้วย Google</button>
+
+        <div class="divrow"><div class="divline"></div><div class="divtxt">หรือ</div><div class="divline"></div></div>
+
+        <div class="fg" style="margin-bottom:13px">
+          <div class="lbl">อีเมล</div>
+          <input class="inp" type="email" placeholder="your@email.com">
+        </div>
+        <button class="btn-p" style="margin-bottom:16px">ถัดไป →</button>
+
+        <div style="flex:1"></div>
+        <div class="fine">การสมัครถือว่าคุณยอมรับ<br><span>นโยบายความเป็นส่วนตัว</span> และ <span>เงื่อนไขการใช้งาน</span></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ S5: ผูกดวง Reveal ══════════════ -->
+    <div class="screen" id="s5">
+      <div class="sbar"><span>9:41</span><span>●●● 5G ▮</span></div>
+      <div class="nh">
+        <div style="width:32px"></div>
+        <span class="ntitle">ผูกดวงของคุณ</span>
+        <div style="width:32px"></div>
+      </div>
+      <div class="rv-scroll">
+        <div class="rv-hero">
+          <div class="asc-badge">
+            <div class="asc-lbl">ลัคนาของคุณ</div>
+            <div class="asc-val">♊ เมถุน</div>
+            <div class="asc-planet">ดาวพุธเป็นดาวประจำตัว</div>
+          </div>
+          <div class="rv-headline">คุณคือนักคิด ผู้ปรับตัวเก่ง</div>
+          <div class="rv-sub">ดวงชะตาชี้ว่าคุณมีพรสวรรค์<br>ด้านการสื่อสารและความยืดหยุ่น</div>
+        </div>
+
+        <div class="lbl" style="margin-bottom:11px">5 ลักษณะเด่นของคุณ</div>
+        <div class="trait-grid">
+          <div class="tr"><div class="tr-ico">🧠</div><div class="tr-name">ฉลาด & วิเคราะห์เก่ง</div><div class="tr-desc">คิดเร็ว มองหลายมุม</div></div>
+          <div class="tr"><div class="tr-ico">🗣️</div><div class="tr-name">สื่อสารเก่ง</div><div class="tr-desc">ดึงดูดคนรอบข้างได้ง่าย</div></div>
+          <div class="tr"><div class="tr-ico">🔄</div><div class="tr-name">ปรับตัวเก่ง</div><div class="tr-desc">รับมือการเปลี่ยนแปลงดี</div></div>
+          <div class="tr"><div class="tr-ico">✨</div><div class="tr-name">สร้างสรรค์</div><div class="tr-desc">ไอเดียใหม่ตลอดเวลา</div></div>
+          <div class="tr wide">
+            <div style="display:flex;gap:11px;align-items:center">
+              <div class="tr-ico">💫</div>
+              <div><div class="tr-name">ช่วงปี 2568 พิเศษสำหรับคุณ</div><div class="tr-desc">ดาวพุธเดินทางดี เหมาะกับการลงมือทำสิ่งใหม่ในครึ่งปีแรก</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lbl" style="margin-bottom:11px">ดวงในแต่ละด้าน (สมาชิก)</div>
+
+        <div class="domain-card hi">
+          <div class="dc-left"><div class="dc-ico">❤️</div><div><div class="dc-name">ความรัก</div><div class="dc-sub hl">ดวงความรักปี 2568 พร้อมแล้ว</div></div></div>
+          <div>🔒</div>
+        </div>
+        <div class="domain-card">
+          <div class="dc-left"><div class="dc-ico">💼</div><div><div class="dc-name">การงาน</div><div class="dc-sub">ดูดวงการงานปี 2568</div></div></div>
+          <div style="color:var(--t3)">🔒</div>
+        </div>
+        <div class="domain-card">
+          <div class="dc-left"><div class="dc-ico">💰</div><div><div class="dc-name">การเงิน</div><div class="dc-sub">ดูดวงการเงินปี 2568</div></div></div>
+          <div style="color:var(--t3)">🔒</div>
+        </div>
+        <div class="domain-card">
+          <div class="dc-left"><div class="dc-ico">🏥</div><div><div class="dc-name">สุขภาพ</div><div class="dc-sub">ดูดวงสุขภาพปี 2568</div></div></div>
+          <div style="color:var(--t3)">🔒</div>
+        </div>
+
+        <div style="height:18px"></div>
+        <button class="btn-p">สมัครสมาชิก — ปลดล็อกทั้งหมด</button>
+        <div style="font-size:12px;color:var(--t3);text-align:center;margin-top:9px">ฟรี 7 วัน · จากนั้น 199฿/เดือน</div>
+        <div style="height:32px"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ S6: Home ══════════════ -->
+    <div class="screen" id="s6">
+      <div class="sbar"><span>9:41</span><span>●●● 5G ▮</span></div>
+      <div class="scroll">
+        <div class="hdr">
+          <div><div class="greet">สวัสดี, อาทิตย์ 👋</div><div class="hdate">ศุกร์ · 9 พฤษภาคม 2568</div></div>
+          <div class="ava">☺</div>
+        </div>
+
+        <div class="daily-feat">
+          <div class="df-lbl">ดวงวันนี้</div>
+          <div class="df-title">วันนี้เหมาะสำหรับการริเริ่มสิ่งใหม่ พลังงานรอบข้างเป็นบวก</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div class="pill"><span class="pdot" style="background:#a78bfa"></span>สีม่วง</div>
+            <div class="pill">🔢 7</div>
+            <div class="pill">⏰ 09:00–11:00</div>
+          </div>
+        </div>
+
+        <div class="moon-bar">
+          <div class="m-ico">🌒</div>
+          <div style="flex:1"><div class="m-name">จันทร์เสี้ยว</div><div class="m-sub">พลังงานเพิ่มขึ้น เหมาะกับการเริ่มต้น</div></div>
+          <div class="m-badge">ฤกษ์ดี</div>
+        </div>
+
+        <div class="sec-hdr">ฟีเจอร์หลัก</div>
+        <div class="feat-grid">
+          <div class="fc"><div class="fc-ico">🔮</div><div class="fc-name">คุยกับหมอดู</div><div class="fc-sub">ถามได้ทุกเรื่อง 24 ชั่วโมง</div><div class="fc-badge">Unlimited</div></div>
+          <div class="fc"><div class="fc-ico">⭐</div><div class="fc-name">ผูกดวง</div><div class="fc-sub">ดวงชะตาเฉพาะตัวของคุณ</div></div>
+          <div class="fc"><div class="fc-ico">🃏</div><div class="fc-name">ไพ่ทาโรต์</div><div class="fc-sub">ไพ่ 3 ใบ อดีต-ปัจจุบัน-อนาคต</div></div>
+          <div class="fc"><div class="fc-ico">👥</div><div class="fc-name">เปรียบดวง</div><div class="fc-sub">เทียบดวงกับเพื่อน/คู่รัก</div></div>
+        </div>
+
+        <div class="sec-hdr">เครื่องมือฟรี</div>
+        <div class="feat-grid">
+          <div class="fc"><div class="fc-ico">📱</div><div class="fc-name">เบอร์มงคล</div><div class="fc-sub">เช็คเบอร์โทรศัพท์</div></div>
+          <div class="fc"><div class="fc-ico">💤</div><div class="fc-name">ทำนายฝัน</div><div class="fc-sub">ฝันเห็นอะไร?</div></div>
+        </div>
+        <div style="height:90px"></div>
+      </div>
+      <div class="tbar">
+        <div class="ti on"><div class="tico">🏠</div><div class="tlbl">หน้าหลัก</div></div>
+        <div class="ti"><div class="tico">🔮</div><div class="tlbl">หมอดู</div></div>
+        <div class="ti"><div class="tico">⭐</div><div class="tlbl">ดวงฉัน</div></div>
+        <div class="ti"><div class="tico">👤</div><div class="tlbl">โปรไฟล์</div></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ S7: Daily Reading ══════════════ -->
+    <div class="screen" id="s7">
+      <div class="sbar"><span>9:41</span><span>●●● 5G ▮</span></div>
+      <div class="nh">
+        <button class="back">←</button>
+        <span class="ntitle">ดวงวันนี้</span>
+        <div style="width:32px"></div>
+      </div>
+      <div class="dr-scroll">
+        <div class="dr-hero">
+          <div class="date-badge">📅 ศุกร์ · 9 พฤษภาคม 2568</div>
+          <div class="dr-title">วันแห่งการริเริ่ม</div>
+          <div class="dr-sub">ดาวพุธส่งพลังงานบวกมายังลัคนาเมถุนของคุณ</div>
+        </div>
+
+        <div class="lucky-grid">
+          <div class="lk"><div class="lk-ico">🎨</div><div class="lk-lbl">สีมงคล</div><div class="lk-val"><span class="swatch" style="background:#a78bfa"></span>ม่วง</div></div>
+          <div class="lk"><div class="lk-ico">🔢</div><div class="lk-lbl">เลขมงคล</div><div class="lk-val">7</div></div>
+          <div class="lk"><div class="lk-ico">⏰</div><div class="lk-lbl">ฤกษ์ดี</div><div class="lk-val" style="font-size:13px">09–11 น.</div></div>
+        </div>
+
+        <div class="rcard">
+          <div class="rcard-lbl">การอ่านดวงวันนี้</div>
+          <div class="rtext">วันนี้ดาวพุธเดินทางอยู่ในตำแหน่งเอื้อต่อลัคนาเมถุนของคุณ คุณจะรู้สึกชัดเจนในความคิด การสื่อสารราบรื่น เหมาะกับการพูดคุยสำคัญหรือนำเสนองาน</div>
+        </div>
+
+        <div class="blur-wrap">
+          <div class="blur-inner">
+            <div class="rcard-lbl">การวิเคราะห์เชิงลึก (AI)</div>
+            <div class="rtext">ช่วงบ่ายของวันนี้ ดาวอังคารเริ่มเข้าสู่ตำแหน่งที่สนับสนุนบ้าน 6 ของคุณ ซึ่งเกี่ยวข้องกับสุขภาพและงานประจำวัน คุณอาจรู้สึกมีแรงจูงใจในการจัดการงานที่ค้างอยู่ให้เสร็จ แนะนำให้ใช้ช่วงเวลา 13:00-15:00 สำหรับงานที่ต้องการสมาธิสูง และหลีกเลี่ยงการทำสัญญาหรือตัดสินใจทางการเงินในช่วงดึก</div>
+          </div>
+          <div class="blur-fog">
+            <div class="blur-msg">สมัครสมาชิกเพื่อดูการวิเคราะห์เชิงลึกทุกวัน</div>
+            <button class="btn-p" style="font-size:13px;padding:12px">ปลดล็อก — ฟรี 7 วัน</button>
+          </div>
+        </div>
+
+        <div class="aus-card">
+          <div class="lbl" style="color:rgba(240,192,96,.55);margin-bottom:7px">ฤกษ์มงคลวันนี้</div>
+          <div class="aus-time">09:00 – 11:00</div>
+          <div class="aus-sub">เหมาะสำหรับการริเริ่ม ลงนาม ติดต่องาน</div>
+        </div>
+        <div style="height:20px"></div>
+      </div>
+      <div class="tbar">
+        <div class="ti"><div class="tico">🏠</div><div class="tlbl">หน้าหลัก</div></div>
+        <div class="ti"><div class="tico">🔮</div><div class="tlbl">หมอดู</div></div>
+        <div class="ti on"><div class="tico">⭐</div><div class="tlbl">ดวงฉัน</div></div>
+        <div class="ti"><div class="tico">👤</div><div class="tlbl">โปรไฟล์</div></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ S8: AI Chat ══════════════ -->
+    <div class="screen" id="s8">
+      <div class="sbar"><span>9:41</span><span>●●● 5G ▮</span></div>
+      <div class="nh">
+        <button class="back">←</button>
+        <span class="ntitle">หมอดู AI</span>
+        <div style="font-size:19px;cursor:pointer;color:var(--t2)">⋯</div>
+      </div>
+      <div class="chat-status">
+        <div class="online-dot"></div>
+        <div class="online-txt">หมอดูออนไลน์ · ตอบทันที</div>
+      </div>
+
+      <div class="chat-scroll">
+        <div class="mrow">
+          <div class="mav">🔮</div>
+          <div>
+            <div class="mb">สวัสดีครับ อาทิตย์ 🙏 วันนี้มีอะไรที่อยากปรึกษาไหมครับ? จากดวงวันนี้ คุณอยู่ในช่วงที่ดาวพุธส่งพลังงานดีมาก</div>
+            <div class="mmeta">09:41</div>
+          </div>
+        </div>
+
+        <div class="mrow u">
+          <div>
+            <div class="mb">อยากรู้ว่าควรย้ายงานตอนนี้ดีไหมครับ กำลังตัดสินใจอยู่</div>
+            <div class="mmeta">09:42</div>
+          </div>
+        </div>
+
+        <div class="mrow">
+          <div class="mav">🔮</div>
+          <div>
+            <div class="mb">น่าสนใจครับ จากดวงชะตาของคุณ ลัคนาเมถุนมีดาวพุธเป็นเจ้าบ้าน ซึ่งตอนนี้เดินทางอยู่ในราศีพฤษภ ช่วงนี้เหมาะกับการ<br><br>✓ สำรวจตัวเลือกใหม่<br>✓ พูดคุยต่อรอง<br><br>แต่ <strong>ยังไม่ควรตัดสินใจขั้นสุดท้าย</strong> รอจนกว่าดาวจะเคลื่อนอีก 3 สัปดาห์ครับ คุณพิจารณาย้ายไปที่ไหนครับ?</div>
+            <div class="mmeta">09:42</div>
+          </div>
+        </div>
+
+        <div class="mrow u">
+          <div>
+            <div class="mb">บริษัท startup ด้าน fintech ครับ เงินเดือนขึ้น 30%</div>
+            <div class="mmeta">09:43</div>
+          </div>
+        </div>
+
+        <div class="mrow">
+          <div class="mav">🔮</div>
+          <div class="mb" style="padding:14px 16px">
+            <div class="typing"><div class="td"></div><div class="td"></div><div class="td"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="limit-bar">⚡ ใช้ฟรีไปแล้ว 2/3 ครั้ง · <a>สมัครสมาชิกไม่จำกัด →</a></div>
+      <div class="chat-bar">
+        <textarea class="chat-inp" placeholder="พิมพ์คำถามของคุณ..." rows="1"></textarea>
+        <button class="send">↑</button>
+      </div>
+      <div class="tbar">
+        <div class="ti"><div class="tico">🏠</div><div class="tlbl">หน้าหลัก</div></div>
+        <div class="ti on"><div class="tico">🔮</div><div class="tlbl">หมอดู</div></div>
+        <div class="ti"><div class="tico">⭐</div><div class="tlbl">ดวงฉัน</div></div>
+        <div class="ti"><div class="tico">👤</div><div class="tlbl">โปรไฟล์</div></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ S9: Tarot ══════════════ -->
+    <div class="screen" id="s9">
+      <div class="sbar"><span>9:41</span><span>●●● 5G ▮</span></div>
+      <div class="nh">
+        <button class="back">←</button>
+        <span class="ntitle">ไพ่ทาโรต์</span>
+        <div style="width:32px"></div>
+      </div>
+      <div class="tr-scroll">
+        <div class="tr-hero">
+          <div class="tr-title">สุ่มไพ่ 3 ใบ</div>
+          <div class="tr-sub">ตั้งใจนึกถึงคำถามของคุณ<br>แล้วเลือกไพ่ทีละใบ</div>
+        </div>
+
+        <input class="tr-inp" placeholder="คำถามของคุณ เช่น ความรักในปีนี้เป็นอย่างไร?">
+
+        <div class="cards-row">
+          <div class="tcard rv">
+            <div class="tcard-inner">
+              <div class="tcard-icon">☀️</div>
+              <div class="tcard-name">The Sun</div>
+              <div class="tpos-lbl" style="color:var(--purple)">ตั้งตรง</div>
+            </div>
+          </div>
+          <div class="tcard rv">
+            <div class="tcard-inner">
+              <div class="tcard-icon">⚡</div>
+              <div class="tcard-name">The Tower</div>
+              <div class="tpos-lbl" style="color:var(--red)">กลับหัว</div>
+            </div>
+          </div>
+          <div class="tcard fd" style="opacity:.75">
+          </div>
+        </div>
+
+        <div class="tr-labels">
+          <div class="tr-lbl-item">อดีต</div>
+          <div class="tr-lbl-item">ปัจจุบัน</div>
+          <div class="tr-lbl-item">แตะเพื่อเปิด</div>
+        </div>
+
+        <div class="reading-box">
+          <div class="rb-title">การอ่านไพ่ · AI + ดวงชะตาของคุณ</div>
+          <div class="rb-para"><strong>☀️ อดีต — The Sun:</strong><br>คุณผ่านช่วงเวลาแห่งความสุขและความสำเร็จมา พลังงานบวกนั้นยังคงอยู่ในตัวคุณ</div>
+          <div class="rb-para"><strong>⚡ ปัจจุบัน — The Tower (กลับหัว):</strong><br>การเปลี่ยนแปลงที่น่ากลัวกำลังเกิดขึ้น แต่ลัคนาเมถุนของคุณช่วยให้ปรับตัวได้เร็วกว่าคนอื่น</div>
+          <div class="rb-hint">แตะไพ่ใบที่ 3 เพื่อดูอนาคต →</div>
+        </div>
+        <div style="height:32px"></div>
+      </div>
+      <div class="tbar">
+        <div class="ti"><div class="tico">🏠</div><div class="tlbl">หน้าหลัก</div></div>
+        <div class="ti"><div class="tico">🔮</div><div class="tlbl">หมอดู</div></div>
+        <div class="ti on"><div class="tico">⭐</div><div class="tlbl">ดวงฉัน</div></div>
+        <div class="ti"><div class="tico">👤</div><div class="tlbl">โปรไฟล์</div></div>
+      </div>
+    </div>
+
+    </div><!-- end phone inner -->
+  </div><!-- end phone -->
+</div><!-- end center -->
+
+<script>
+const labels = {
+  s1:'Pre-login — Splash / Home',
+  s2:'Pre-login — Free Tool Input (ปีชง)',
+  s3:'Pre-login — Free Tool Result',
+  s4:'Onboarding — Registration',
+  s5:'Onboarding — ผูกดวง Reveal',
+  s6:'Post-login — Home',
+  s7:'Post-login — Daily Reading',
+  s8:'Post-login — AI Chat',
+  s9:'Post-login — Tarot Reading',
+};
+function show(id, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  document.getElementById('slbl').textContent = labels[id] || id;
+}
+</script>
+</body>
+</html>

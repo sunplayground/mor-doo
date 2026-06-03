@@ -23,10 +23,10 @@ export async function handleQueueBatch(batch: MessageBatch<FeatureTask>, env: En
 
       switch (task.feature) {
         case 'daily-reading':
-          result = await handleDailyReading(env, user);
+          result = await handleDailyReading(env, user, task.todayChips);
           break;
         case 'weekly-reading':
-          result = await handleWeeklyReading(env, user);
+          result = await handleWeeklyReading(env, user, task.compassContext);
           break;
         case 'birth-chart':
           result = await handleBirthChart(env, user);
@@ -91,9 +91,9 @@ export async function handleQueueBatch(batch: MessageBatch<FeatureTask>, env: En
 
 async function handleFriendChart(env: Env, user: User, otherBirthDate?: string): Promise<string> {
   const { chatCompletion, buildSystemPrompt } = await import('./ai-client');
-  const { getFeatureConfig } = await import('./skill-service');
-  const { getSkillFile } = await import('./skill-service');
+  const { getFeatureConfig, getSkillFile } = await import('./skill-service');
   const { getMemory } = await import('./memory-service');
+  const { getNatalChartSection } = await import('./natal-calculator');
 
   const config = await getFeatureConfig(env, 'friend-chart');
   const skillMd = await getSkillFile(env, 'friend-chart', 'skill.md');
@@ -101,7 +101,14 @@ async function handleFriendChart(env: Env, user: User, otherBirthDate?: string):
   const memoryMd = await getMemory(env, user.line_user_id);
   const model = config?.ai_model || env.AI_MODEL;
 
-  const systemPrompt = buildSystemPrompt(skillMd, referenceMd, memoryMd, [], 'friend-chart');
+  let systemPrompt = buildSystemPrompt(skillMd, referenceMd, memoryMd, [], 'friend-chart');
+  if (config?.natal_source_systems) {
+    try {
+      const systems: string[] = JSON.parse(config.natal_source_systems);
+      const natalSection = getNatalChartSection(user, systems);
+      if (natalSection) systemPrompt += '\n\n' + natalSection;
+    } catch {}
+  }
   const prompt = `เปรียบเทียบดวงชะตาของฉัน (เกิด ${user.birth_date} เวลา ${user.birth_time || 'ไม่ระบุ'}) กับคนที่เกิดวันที่ ${otherBirthDate || 'ไม่ระบุ'}`;
 
   return chatCompletion(env, [

@@ -14,6 +14,9 @@ import {
   handleBadYear, handleAuspiciousTime,
 } from './feature-handler';
 import { generateToday, generateTak, generateRightNow, generateCompatibility } from './today-service';
+import { generateWeekEnergy } from './week-energy-service';
+import { generateTodayActions } from './today-actions-service';
+import { generateDayTimeline } from './day-timeline-service';
 import { getQuota, incrementQuota } from './quota-service';
 import { createPendingResult, getResult, getRecentResults, getCachedFeature, setCachedFeature } from './result-service';
 import { handleQueueBatch } from './queue-handler';
@@ -111,6 +114,14 @@ async function handleFeatureRoutes(path: string, request: Request, env: Env): Pr
       const data = await generateToday(env, user);
       return cors(Response.json(data));
     }
+    if (path === '/api/feature/week-energy') {
+      const data = await generateWeekEnergy(env, user);
+      return cors(Response.json(data));
+    }
+    if (path === '/api/feature/today-actions') {
+      const data = await generateTodayActions(env, user);
+      return cors(Response.json(data));
+    }
     if (path === '/api/feature/tak') {
       const cached = await getCachedFeature(env, user.line_user_id, 'tak');
       if (cached) {
@@ -200,10 +211,14 @@ async function handleFeatureRoutes(path: string, request: Request, env: Env): Pr
     return cors(Response.json({ result }));
   }
 
+  if (path === '/api/feature/day-timeline') {
+    const data = await generateDayTimeline(env, user, body.today_chips);
+    return cors(Response.json(data));
+  }
+
   // All other features: check cache first, then async via queue
   const feature = path.replace('/api/feature/', '');
 
-  // Check if regenerate is requested
   const noCache = body._regenerate === true;
 
   // For cacheable features without user-specific input, check daily cache first
@@ -230,6 +245,8 @@ async function handleFeatureRoutes(path: string, request: Request, env: Env): Pr
     message,
     otherBirthDate: body.otherBirthDate,
     action: body.action,
+    todayChips: body.today_chips,
+    compassContext: body.compass_context,
   };
 
   try {
@@ -239,8 +256,8 @@ async function handleFeatureRoutes(path: string, request: Request, env: Env): Pr
     console.error('Queue send failed, falling back to sync:', err);
     let result: string;
     switch (feature) {
-      case 'daily-reading': result = await handleDailyReading(env, user); break;
-      case 'weekly-reading': result = await handleWeeklyReading(env, user); break;
+      case 'daily-reading': result = await handleDailyReading(env, user, body.today_chips); break;
+      case 'weekly-reading': result = await handleWeeklyReading(env, user, body.compass_context); break;
       case 'birth-chart': result = await handleBirthChart(env, user); break;
       case 'tarot': result = await handleTarot(env, user, message || undefined); break;
       case 'dream': result = await handleDream(env, user, message); break;
@@ -304,6 +321,8 @@ async function handleAuthRoutes(path: string, request: Request, env: Env): Promi
     return cors(Response.json({
       onboarded: user.onboarding_complete === 1,
       userId: user.line_user_id,
+      tier: user.tier,
+      subscriptionExpiresAt: user.subscription_expires_at,
       user: { name: user.name, birthDate: user.birth_date, birthTime: user.birth_time, phone: user.phone, pictureUrl: user.picture_url },
     }));
   }
@@ -326,6 +345,8 @@ async function handleAuthRoutes(path: string, request: Request, env: Env): Promi
     return cors(Response.json({
       onboarded: user.onboarding_complete === 1,
       userId: user.line_user_id,
+      tier: user.tier,
+      subscriptionExpiresAt: user.subscription_expires_at,
       user: { name: user.name, birthDate: user.birth_date, birthTime: user.birth_time, phone: user.phone, pictureUrl: user.picture_url },
     }));
   }
@@ -449,6 +470,16 @@ async function handleAdminRoutes(path: string, request: Request, env: Env): Prom
     try {
       const memory = await regenerateMemoryFromLogs(env, userId);
       return cors(Response.json({ success: true, memory }));
+    } catch (err: any) {
+      return cors(Response.json({ error: err.message }, { status: 500 }));
+    }
+  }
+
+  if (path === '/api/admin/trigger-precompute' && request.method === 'POST') {
+    try {
+      const { handlePrecomputeCron } = await import('./cron-handler');
+      await handlePrecomputeCron(env);
+      return cors(Response.json({ success: true, message: 'Pre-compute completed' }));
     } catch (err: any) {
       return cors(Response.json({ error: err.message }, { status: 500 }));
     }

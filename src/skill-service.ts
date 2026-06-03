@@ -69,8 +69,8 @@ export async function upsertFeatureConfig(
       .run();
   } else {
     await env.DB.prepare(
-      `INSERT INTO feature_configs (feature, ai_model, skill_md_path, reference_md_path, extra_skill_paths, enabled)
-       VALUES (?, ?, ?, ?, ?, ?)`
+      `INSERT INTO feature_configs (feature, ai_model, skill_md_path, reference_md_path, extra_skill_paths, enabled, natal_source_systems)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
     )
       .bind(
         feature,
@@ -78,20 +78,29 @@ export async function upsertFeatureConfig(
         updates.skill_md_path || null,
         updates.reference_md_path || null,
         updates.extra_skill_paths || null,
-        updates.enabled !== undefined ? updates.enabled : 1
+        updates.enabled !== undefined ? updates.enabled : 1,
+        updates.natal_source_systems || null
       )
       .run();
   }
 }
 
+const ALL_NATAL_SYSTEMS = JSON.stringify([
+  'western_tropical', 'thai_sidereal', 'current_transits',
+  'bazi', 'taksa', 'vimshottari_dasha', 'bad_year',
+  'western_houses', 'compatibility_inputs',
+]);
+
+const ALL_FEATURES: FeatureName[] = [
+  'daily-reading', 'weekly-reading', 'chat', 'birth-chart',
+  'tarot', 'dream', 'phone-number', 'name-analysis',
+  'bad-year', 'friend-chart', 'auspicious-time',
+  'tak', 'today', 'profile', 'compatibility', 'morning-push',
+  'week-energy', 'today-actions', 'day-timeline', 'ai-insight',
+];
+
 export async function initializeFeatureConfigs(env: Env): Promise<void> {
-  const features: FeatureName[] = [
-    'daily-reading', 'weekly-reading', 'chat', 'birth-chart',
-    'tarot', 'dream', 'phone-number', 'name-analysis',
-    'bad-year', 'friend-chart', 'auspicious-time',
-    'tak', 'today', 'profile', 'compatibility', 'morning-push',
-  ];
-  for (const feature of features) {
+  for (const feature of ALL_FEATURES) {
     const existing = await getFeatureConfig(env, feature);
     if (!existing) {
       await upsertFeatureConfig(env, feature, {
@@ -99,7 +108,11 @@ export async function initializeFeatureConfigs(env: Env): Promise<void> {
         skill_md_path: `skills/${feature}/skill.md`,
         reference_md_path: `skills/${feature}/reference.md`,
         enabled: 1,
+        natal_source_systems: ALL_NATAL_SYSTEMS,
       });
+    } else if (!existing.natal_source_systems) {
+      // Backfill natal for existing features that were created without it
+      await upsertFeatureConfig(env, feature, { natal_source_systems: ALL_NATAL_SYSTEMS });
     }
   }
 }

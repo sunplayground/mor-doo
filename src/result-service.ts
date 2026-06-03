@@ -57,16 +57,15 @@ export async function getRecentResults(env: Env, lineUserId: string, limit: numb
 }
 
 export async function getCachedFeature(env: Env, lineUserId: string, feature: string): Promise<string | null> {
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
   const row = await env.DB.prepare(
-    "SELECT content FROM daily_cache WHERE line_user_id = ? AND cache_type = ? AND DATE(created_at) = ?"
+    "SELECT content FROM daily_cache WHERE line_user_id = ? AND cache_type = ? AND DATE(datetime(created_at, '+7 hours')) = ? ORDER BY created_at DESC LIMIT 1"
   ).bind(lineUserId, feature, today).first();
   if (!row) return null;
   return (row as any).content;
 }
 
 export async function setCachedFeature(env: Env, lineUserId: string, feature: string, content: string): Promise<void> {
-  const today = new Date().toISOString().split('T')[0];
   await env.DB.prepare(
     "INSERT OR REPLACE INTO daily_cache (line_user_id, cache_type, content, created_at) VALUES (?, ?, ?, datetime('now'))"
   ).bind(lineUserId, feature, content).run();

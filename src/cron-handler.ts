@@ -4,7 +4,10 @@ import { handleDailyReading, handleWeeklyReading } from './feature-handler';
 import { pushMessage, templateButtonMessage } from './line-client';
 import { logMessage, logEvent } from './log-service';
 import { processMemoryBatch, regenerateMemoryFromLogs } from './memory-service';
-import { generateToday, generateTak } from './today-service';
+import { generateToday, generateTak, getCachedToday } from './today-service';
+import { generateWeekEnergy } from './week-energy-service';
+import { generateTodayActions } from './today-actions-service';
+import { generateDayTimeline } from './day-timeline-service';
 import { resetDailyQuotas } from './quota-service';
 import { getFeatureConfig, getSkillFile } from './skill-service';
 import { chatCompletion, buildSystemPrompt } from './ai-client';
@@ -17,10 +20,10 @@ export async function handleCron(env: Env, cron: string): Promise<void> {
   const thHour = (utcHour + 7) % 24;
 
   if (cron === '0 0 * * *') {
+    // 7am Bangkok — send morning push, process memory, reset quotas
     await handleDailyCron(env, thHour);
     await handleMemoryBatchCron(env);
     await resetDailyQuotas(env);
-    await handlePrecomputeCron(env);
   }
 
   if (cron === '0 13 * * 0') {
@@ -28,6 +31,8 @@ export async function handleCron(env: Env, cron: string): Promise<void> {
   }
 
   if (cron === '0 17 * * *') {
+    // Midnight Bangkok — pre-compute today data for all users
+    await handlePrecomputeCron(env);
     await handleMemoryRegenerateCron(env);
   }
 }
@@ -41,7 +46,9 @@ async function handleDailyCron(env: Env, thHour: number): Promise<void> {
 
   for (const user of onboarded) {
     try {
-      const messages = await generateMorningPush(env, user, liffUrl);
+      const todayData = await getCachedToday(env, user.line_user_id);
+      const chips = todayData?.chips ?? undefined;
+      const messages = await generateMorningPush(env, user, liffUrl, chips);
       await pushMessage(env, user.line_user_id, messages);
       await logEvent(env, user.line_user_id, 'daily_push', { hour: thHour });
     } catch (err) {
@@ -50,7 +57,7 @@ async function handleDailyCron(env: Env, thHour: number): Promise<void> {
   }
 }
 
-export async function generateMorningPush(env: Env, user: User, liffUrl?: string): Promise<any[]> {
+export async function generateMorningPush(env: Env, user: User, liffUrl?: string, chips?: { color: string; colorHex: string; number: string; goldenTime: string }): Promise<any[]> {
   const url = liffUrl || (env.LIFF_ID ? `https://liff.line.me/${env.LIFF_ID}` : 'https://mor-doo.sunx-prod.workers.dev');
 
   if (!user.birth_date) {
@@ -78,10 +85,15 @@ export async function generateMorningPush(env: Env, user: User, liffUrl?: string
     } catch {}
   }
 
+  const chipsSection = chips?.color
+    ? `# TODAY CARD — ค่าที่แสดงในแอปแล้ว ต้องใช้ค่าเหล่านี้ให้ตรงกันทุกตัว\nสีมงคล: ${chips.color}\nเลขมงคล: ${chips.number}\nเวลามงคล (เวลาทอง): ${chips.goldenTime}`
+    : '';
+
   const systemPrompt = [
     baseSkill,
     memoryMd ? `# ข้อมูลผู้ใช้\n${memoryMd}` : '',
     natalSection || '',
+    chipsSection,
     `# วันเวลาปัจจุบัน\nวัน${dateStr} เวลา ${timeStr} น. (เขตเวลากรุงเทพฯ)`,
     `# กฎสำคัญ — ตอบเป็น JSON เท่านั้น
 ห้าม markdown ห้าม text อื่น ตอบเฉพาะ JSON object:
@@ -229,12 +241,14 @@ async function handleMemoryBatchCron(env: Env): Promise<void> {
   }
 }
 
-async function handlePrecomputeCron(env: Env): Promise<void> {
+export async function handlePrecomputeCron(env: Env): Promise<void> {
   const users = await getAllUsers(env);
   const onboarded = users.filter(u => u.onboarding_complete && u.birth_date);
   for (const user of onboarded) {
+    let todayChips: { color: string; colorHex: string; number: string; goldenTime: string } | undefined;
     try {
-      await generateToday(env, user);
+      const todayData = await generateToday(env, user);
+      todayChips = todayData.chips ?? undefined;
     } catch (err) {
       console.error(`Precompute today failed for ${user.line_user_id}:`, err);
     }
@@ -242,6 +256,21 @@ async function handlePrecomputeCron(env: Env): Promise<void> {
       await generateTak(env, user);
     } catch (err) {
       console.error(`Precompute tak failed for ${user.line_user_id}:`, err);
+    }
+    try {
+      await generateWeekEnergy(env, user);
+    } catch (err) {
+      console.error(`Precompute week-energy failed for ${user.line_user_id}:`, err);
+    }
+    try {
+      await generateTodayActions(env, user);
+    } catch (err) {
+      console.error(`Precompute today-actions failed for ${user.line_user_id}:`, err);
+    }
+    try {
+      await generateDayTimeline(env, user, todayChips);
+    } catch (err) {
+      console.error(`Precompute day-timeline failed for ${user.line_user_id}:`, err);
     }
   }
 }

@@ -5,10 +5,14 @@ import { getMemory } from './memory-service';
 import { User } from './types';
 import { getNatalChartSection } from './natal-calculator';
 
+function bangkokDate(): string {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
+}
+
 export async function getCachedToday(env: Env, lineUserId: string): Promise<TodayData | null> {
-  const today = new Date().toISOString().split('T')[0];
+  const today = bangkokDate();
   const row = await env.DB.prepare(
-    "SELECT content FROM daily_cache WHERE line_user_id = ? AND cache_type = 'today' AND DATE(created_at) = ?"
+    "SELECT content FROM daily_cache WHERE line_user_id = ? AND cache_type = 'today' AND DATE(datetime(created_at, '+7 hours')) = ? ORDER BY created_at DESC LIMIT 1"
   ).bind(lineUserId, today).first();
   if (!row) return null;
   try {
@@ -19,26 +23,38 @@ export async function getCachedToday(env: Env, lineUserId: string): Promise<Toda
 }
 
 export async function setCachedToday(env: Env, lineUserId: string, data: TodayData): Promise<void> {
-  const today = new Date().toISOString().split('T')[0];
   await env.DB.prepare(
     "INSERT OR REPLACE INTO daily_cache (line_user_id, cache_type, content, created_at) VALUES (?, 'today', ?, datetime('now'))"
   ).bind(lineUserId, JSON.stringify(data)).run();
 }
 
 export async function getCachedTak(env: Env, lineUserId: string): Promise<string | null> {
-  const today = new Date().toISOString().split('T')[0];
+  const today = bangkokDate();
   const row = await env.DB.prepare(
-    "SELECT content FROM daily_cache WHERE line_user_id = ? AND cache_type = 'tak' AND DATE(created_at) = ?"
+    "SELECT content FROM daily_cache WHERE line_user_id = ? AND cache_type = 'tak' AND DATE(datetime(created_at, '+7 hours')) = ? ORDER BY created_at DESC LIMIT 1"
   ).bind(lineUserId, today).first();
   if (!row) return null;
   return (row as any).content;
 }
 
 export async function setCachedTak(env: Env, lineUserId: string, content: string): Promise<void> {
-  const today = new Date().toISOString().split('T')[0];
   await env.DB.prepare(
     "INSERT OR REPLACE INTO daily_cache (line_user_id, cache_type, content, created_at) VALUES (?, 'tak', ?, datetime('now'))"
   ).bind(lineUserId, content).run();
+}
+
+function colorNameToHex(name: string): string {
+  const map: Record<string, string> = {
+    'ส้ม': '#FF8C00', 'แดง': '#E74C3C', 'ขาว': '#F5F5F5', 'เงิน': '#BDC3C7',
+    'ชมพูเข้ม': '#E91E63', 'ชมพู': '#F06292', 'เขียวมรกต': '#1ABC9C',
+    'เขียว': '#27AE60', 'เหลือง': '#F39C12', 'ทอง': '#D4AC0D',
+    'ฟ้าอมเขียว': '#5DADE2', 'ฟ้า': '#3498DB', 'น้ำเงิน': '#2980B9',
+    'ม่วง': '#8E44AD', 'ดำ': '#2C3E50',
+  };
+  for (const [key, hex] of Object.entries(map)) {
+    if (name.includes(key)) return hex;
+  }
+  return '#888888';
 }
 
 export async function generateToday(env: Env, user: User): Promise<TodayData> {
@@ -57,40 +73,48 @@ export async function generateToday(env: Env, user: User): Promise<TodayData> {
     };
   }
 
-  const config = await getFeatureConfig(env, 'daily-reading');
-  const skillMd = await getSkillFile(env, 'daily-reading' as any, 'skill.md');
-  const referenceMd = await getSkillFile(env, 'daily-reading' as any, 'reference.md');
+  const config = await getFeatureConfig(env, 'today');
+  const skillMd = await getSkillFile(env, 'today', 'skill.md');
+  const referenceMd = await getSkillFile(env, 'today', 'reference.md');
+  const insightSkillMd = await getSkillFile(env, 'ai-insight', 'skill.md');
   const memoryMd = await getMemory(env, user.line_user_id);
   const model = config?.ai_model || env.AI_MODEL;
 
   const today = new Date();
   const dateStr = today.toLocaleDateString('th-TH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Bangkok' });
 
+  const insightSchema = insightSkillMd
+    ? insightSkillMd
+    : `"insight": {
+    "must": "One specific thing to do today in Thai",
+    "watch": "One specific thing to watch out for in Thai",
+    "hidden": "One hidden opportunity in Thai"
+  }`;
+
   const systemPrompt = `You are a Thai fortune-telling AI named "พี่ดาว". You analyze using Thai sidereal astrology, Vedic astrology, Bazi, and ทักษา.
 
 CRITICAL: You MUST respond in EXACTLY this JSON format, nothing else:
 {
-  "headline": "A short emotional-therapist-voice headline in Thai about how the user will feel today. NOT generic horoscope. Use specific astrological placements.",
+  "headline": "Short 1-2 sentence therapist-voice headline in Thai describing today's energy for this person. NOT generic horoscope. Reference specific placements.",
   "chips": {
-    "color": "lucky color in Thai",
-    "number": "lucky number(s)",
-    "goldenTime": "best time range today (Thai time)",
-    "moonVoc": "Moon VOC status or empty string"
+    "color": "สีมงคล in Thai (e.g. ม่วง, เขียว, ส้ม)",
+    "colorHex": "#hex color code matching the lucky color (e.g. #9B59B6)",
+    "number": "เลขมงคล as digits only (e.g. 7 or 13)",
+    "goldenTime": "เวลามงคล as HH:MM - HH:MM (e.g. 10:45 - 12:15)"
   },
   "monthTheme": "One-line month compass theme in Thai",
   "yearTheme": "One-line year compass theme in Thai",
   "cycles": [
     {"name": "cycle name in Thai", "dates": "date range", "status": "active or upcoming or winding"}
   ],
-  "insight": {
-    "must": "One specific thing to do today in Thai",
-    "watch": "One specific thing to watch out for in Thai",
-    "hidden": "One hidden opportunity in Thai"
-  }
+  "insight": { ... see AI INSIGHT SKILL below ... }
 }
 
 Birth data: ${user.birth_date}, time: ${user.birth_time || 'ไม่ระบุ'}, name: ${user.name || 'User'}
-Today: ${dateStr}`;
+Today: ${dateStr}
+
+# AI INSIGHT SKILL
+${insightSchema}`;
 
   const userPrompt = `Based on the birth data and today's transits, generate today's reading. Use therapist-voice, not calculator-voice. The headline should feel like someone who truly understands you, not a generic horoscope. Be specific to these birth details.`;
 
@@ -115,7 +139,12 @@ Today: ${dateStr}`;
       const parsed = JSON.parse(jsonMatch[0]);
       const data: TodayData = {
         headline: parsed.headline || '',
-        chips: parsed.chips || null,
+        chips: parsed.chips ? {
+          color: parsed.chips.color || '',
+          colorHex: (parsed.chips.colorHex && parsed.chips.colorHex !== '#888888') ? parsed.chips.colorHex : colorNameToHex(parsed.chips.color || ''),
+          number: parsed.chips.number || '',
+          goldenTime: parsed.chips.goldenTime || '',
+        } : null,
         monthTheme: parsed.monthTheme || '',
         yearTheme: parsed.yearTheme || '',
         cycles: (parsed.cycles || []).map((c: any) => ({
@@ -127,6 +156,9 @@ Today: ${dateStr}`;
         raw: { daily: '', weekly: '', birthChart: '' },
       };
       await setCachedToday(env, user.line_user_id, data);
+      // Invalidate dependent caches so they regenerate with the new chips/compass context
+      await env.DB.prepare("DELETE FROM daily_cache WHERE line_user_id = ? AND cache_type IN ('daily-reading','day-timeline','weekly-reading')")
+        .bind(user.line_user_id).run();
       return data;
     }
   } catch (err) {
@@ -153,9 +185,9 @@ export async function generateTak(env: Env, user: User): Promise<string> {
     return 'สวัสดีค่ะ วันนี้อยากรู้อะไร ถามพี่ดาวได้เลยค่ะ';
   }
 
-  const config = await getFeatureConfig(env, 'chat');
-  const skillMd = await getSkillFile(env, 'chat' as any, 'skill.md');
-  const referenceMd = await getSkillFile(env, 'chat' as any, 'reference.md');
+  const config = await getFeatureConfig(env, 'tak');
+  const skillMd = await getSkillFile(env, 'tak', 'skill.md');
+  const referenceMd = await getSkillFile(env, 'tak', 'reference.md');
   const memoryMd = await getMemory(env, user.line_user_id);
   const model = config?.ai_model || env.AI_MODEL;
 
@@ -163,13 +195,20 @@ export async function generateTak(env: Env, user: User): Promise<string> {
   const dayIndex = new Date(Date.now() + 7 * 3600 * 1000).getUTCDay();
   const dayRuler = dayRulers[dayIndex];
 
-  const systemPrompt = buildSystemPrompt(
+  let systemPrompt = buildSystemPrompt(
     skillMd || '# พี่ดาว\nเป็นหมอดู AI ที่ตอบเป็นภาษาไทย ใช้น้ำเสียงอบอุ่นเหมือนพี่สาว ตอบสั้นไม่เกิน 3 ย่อหน้า',
     referenceMd,
     memoryMd,
     [],
     'tak'
   );
+  if (config?.natal_source_systems) {
+    try {
+      const systems: string[] = JSON.parse(config.natal_source_systems);
+      const natalSection = getNatalChartSection(user, systems);
+      if (natalSection) systemPrompt += '\n\n' + natalSection;
+    } catch {}
+  }
 
   const userPrompt = `สร้างข้อความ "ทัก" สำหรับผู้ใช้ชื่อ ${user.name || 'คุณ'} เกิดวันที่ ${user.birth_date} เวลา ${user.birth_time || 'ไม่ระบุ'} วันนี้เป็นวัน${dayRuler}
 
@@ -198,9 +237,9 @@ export async function generateCompatibility(
     return 'กรุณาลงทะเบียนและใส่วันเกิดก่อนนะคะ';
   }
 
-  const config = await getFeatureConfig(env, 'friend-chart');
-  const skillMd = await getSkillFile(env, 'friend-chart' as any, 'skill.md');
-  const referenceMd = await getSkillFile(env, 'friend-chart' as any, 'reference.md');
+  const config = await getFeatureConfig(env, 'compatibility');
+  const skillMd = await getSkillFile(env, 'compatibility', 'skill.md');
+  const referenceMd = await getSkillFile(env, 'compatibility', 'reference.md');
   const memoryMd = await getMemory(env, user.line_user_id);
   const model = config?.ai_model || env.AI_MODEL;
 
@@ -214,7 +253,14 @@ export async function generateCompatibility(
 
 ตอบเป็นภาษาไทย ใช้น้ำเสียงอบอุ่น ไม่ใช้คำว่า "คะแนน" หรือ "เปอร์เซ็นต์" นำหน้าคำอธิบาย ห้ามแสดงกระบวนการคิด`;
 
-  const systemPrompt = buildSystemPrompt(skillMd, referenceMd, memoryMd, [], 'friend-chart');
+  let systemPrompt = buildSystemPrompt(skillMd, referenceMd, memoryMd, [], 'compatibility');
+  if (config?.natal_source_systems) {
+    try {
+      const systems: string[] = JSON.parse(config.natal_source_systems);
+      const natalSection = getNatalChartSection(user, systems);
+      if (natalSection) systemPrompt += '\n\n' + natalSection;
+    } catch {}
+  }
   const result = await chatCompletion(env, [
     { role: 'system', content: systemPrompt },
     { role: 'user', content: prompt },

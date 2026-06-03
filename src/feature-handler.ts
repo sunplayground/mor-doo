@@ -70,7 +70,11 @@ export async function handleChat(env: Env, user: User, message: string): Promise
   return response;
 }
 
-export async function handleDailyReading(env: Env, user: User): Promise<string> {
+export async function handleDailyReading(
+  env: Env,
+  user: User,
+  todayChips?: { color: string; colorHex: string; number: string; goldenTime: string }
+): Promise<string> {
   if (!user.birth_date) {
     return 'กรุณาลงทะเบียนและใส่วันเกิดก่อนนะคะ พี่ดาวจะได้ดูดวงให้ถูกต้อง';
   }
@@ -79,7 +83,12 @@ export async function handleDailyReading(env: Env, user: User): Promise<string> 
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Bangkok',
   });
 
-  const prompt = `ทำนายดวงประจำวันสำหรับวันนี้ (${today}) ของคนเกิดวันที่ ${user.birth_date} เวลา ${user.birth_time || 'ไม่ระบุ'}\n\nให้ทำนาย: สีมงคล, เลขนำโชค, ช่วงเวลาดี, ช่วงเวลาระวัง, ข้อความสั้นๆ ให้กำลังใจ`;
+  let chipsContext = '';
+  if (todayChips?.color) {
+    chipsContext = `\n\n[TODAY CARD ที่แสดงให้ผู้ใช้แล้ว — ต้องใช้ค่าเหล่านี้ให้ตรงกัน]\nสีมงคล: ${todayChips.color}\nเลขมงคล: ${todayChips.number}\nเวลามงคล: ${todayChips.goldenTime}`;
+  }
+
+  const prompt = `ทำนายดวงประจำวันสำหรับวันนี้ (${today}) ของคนเกิดวันที่ ${user.birth_date} เวลา ${user.birth_time || 'ไม่ระบุ'}\n\nให้ทำนาย: สีมงคล, เลขนำโชค, ช่วงเวลาดี, ช่วงเวลาระวัง, ข้อความสั้นๆ ให้กำลังใจ${chipsContext}`;
 
   await logMessage(env, user.line_user_id, 'inbound', `[auto] daily reading request`, 'daily-reading');
   const response = await runFeature(env, user, 'daily-reading', prompt);
@@ -87,13 +96,22 @@ export async function handleDailyReading(env: Env, user: User): Promise<string> 
   return response;
 }
 
-export async function handleWeeklyReading(env: Env, user: User): Promise<string> {
+export async function handleWeeklyReading(
+  env: Env,
+  user: User,
+  compassContext?: { monthTheme: string; yearTheme: string }
+): Promise<string> {
   if (!user.birth_date) {
     return 'กรุณาลงทะเบียนและใส่วันเกิดก่อนนะคะ';
   }
 
   const now = new Date();
-  const prompt = `ทำนายดวงประจำสัปดาห์หน้า (สัปดาห์ของวันที่ ${now.toLocaleDateString('th-TH', { timeZone: 'Asia/Bangkok' })}) สำหรับคนเกิดวันที่ ${user.birth_date} เวลา ${user.birth_time || 'ไม่ระบุ'}\n\nให้ทำนาย: ธีมประจำสัปดาห์, 3 ด้านสำคัญ (ความรัก/การเงิน/การงาน), วันสำคัญ, 3 สิ่งที่ควรทำ`;
+  let compassSection = '';
+  if (compassContext?.monthTheme) {
+    compassSection = `\n\n[COMPASS ที่แสดงให้ผู้ใช้แล้ว — ต้องสอดคล้องกัน]\nธีมเดือนนี้: ${compassContext.monthTheme}${compassContext.yearTheme ? `\nธีมปีนี้: ${compassContext.yearTheme}` : ''}\nใช้ธีมเหล่านี้เป็นกรอบหลักในการทำนายสัปดาห์ ห้ามขัดแย้ง`;
+  }
+
+  const prompt = `ทำนายดวงประจำสัปดาห์หน้า (สัปดาห์ของวันที่ ${now.toLocaleDateString('th-TH', { timeZone: 'Asia/Bangkok' })}) สำหรับคนเกิดวันที่ ${user.birth_date} เวลา ${user.birth_time || 'ไม่ระบุ'}\n\nให้ทำนาย: ธีมประจำสัปดาห์, 3 ด้านสำคัญ (ความรัก/การเงิน/การงาน), วันสำคัญ, 3 สิ่งที่ควรทำ${compassSection}`;
 
   await logMessage(env, user.line_user_id, 'inbound', `[auto] weekly reading request`, 'weekly-reading');
   const response = await runFeature(env, user, 'weekly-reading', prompt);

@@ -19,6 +19,8 @@ export interface FeatureTask {
   message?: string;
   otherBirthDate?: string;
   action?: string;
+  todayChips?: { color: string; colorHex: string; number: string; goldenTime: string };
+  compassContext?: { monthTheme: string; yearTheme: string };
 }
 
 export interface User {
@@ -116,11 +118,50 @@ export type FeatureName =
   | 'today'
   | 'profile'
   | 'compatibility'
-  | 'morning-push';
+  | 'morning-push'
+  | 'week-energy'
+  | 'today-actions'
+  | 'day-timeline'
+  | 'ai-insight';
+
+export interface TodayAction {
+  id: string;
+  name: string;
+  desc: string;
+  energy: 'good' | 'moderate' | 'bad';
+  time: string;
+  icon: string;
+}
+
+export interface TodayActionsData {
+  actions: TodayAction[];
+  updatedAt: string;
+}
+
+export interface DaySegment {
+  start: string;
+  end: string;
+  level: 'peak' | 'good' | 'moderate' | 'low' | 'caution';
+}
+
+export interface DayTimelineData {
+  segments: DaySegment[];
+  peakStart: string;
+  peakEnd: string;
+}
+
+export interface WeekEnergyDay {
+  date: string;
+  energy: 'good' | 'moderate' | 'challenging';
+}
+
+export interface WeekEnergyData {
+  week: WeekEnergyDay[];
+}
 
 export interface TodayData {
   headline: string;
-  chips: { color: string; number: string; goldenTime: string; moonVoc: string } | null;
+  chips: { color: string; colorHex: string; number: string; goldenTime: string } | null;
   monthTheme: string;
   yearTheme: string;
   cycles: CycleItem[];

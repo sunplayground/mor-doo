@@ -91,7 +91,7 @@ export async function generateToday(env: Env, user: User): Promise<TodayData> {
     "hidden": "One hidden opportunity in Thai"
   }`;
 
-  const systemPrompt = `You are a Thai fortune-telling AI named "พี่ดาว". You analyze using Thai sidereal astrology, Vedic astrology, Bazi, and ทักษา.
+  const fallbackPrompt = `You are a Thai fortune-telling AI named "พี่ดาว". You analyze using Thai sidereal astrology, Vedic astrology, Bazi, and ทักษา.
 
 CRITICAL: You MUST respond in EXACTLY this JSON format, nothing else:
 {
@@ -104,21 +104,15 @@ CRITICAL: You MUST respond in EXACTLY this JSON format, nothing else:
   },
   "monthTheme": "One-line month compass theme in Thai",
   "yearTheme": "One-line year compass theme in Thai",
-  "cycles": [
-    {"name": "cycle name in Thai", "dates": "date range", "status": "active or upcoming or winding"}
-  ],
-  "insight": { ... see AI INSIGHT SKILL below ... }
-}
-
-Birth data: ${user.birth_date}, time: ${user.birth_time || 'ไม่ระบุ'}, name: ${user.name || 'User'}
-Today: ${dateStr}
-
-# AI INSIGHT SKILL
-${insightSchema}`;
+  "insight": { ... see AI INSIGHT SKILL section ... }
+}`;
 
   const userPrompt = `Based on the birth data and today's transits, generate today's reading. Use therapist-voice, not calculator-voice. The headline should feel like someone who truly understands you, not a generic horoscope. Be specific to these birth details.`;
 
-  let systemPart = skillMd ? `${systemPrompt}\n\n# ข้อมูลอ้างอิง\n\n${skillMd}\n${referenceMd ? `\n${referenceMd}\n` : ''}` : systemPrompt;
+  let systemPart = skillMd || fallbackPrompt;
+  systemPart += `\n\nBirth data: ${user.birth_date}, time: ${user.birth_time || 'ไม่ระบุ'}, name: ${user.name || 'User'}\nToday: ${dateStr}`;
+  systemPart += `\n\n# AI INSIGHT SKILL\n${insightSchema}`;
+  if (referenceMd) systemPart += `\n\n# ข้อมูลอ้างอิง\n\n${referenceMd}`;
   if (memoryMd) systemPart += `\n\n# ข้อมูลผู้ใช้ (memory)\n\n${memoryMd}`;
   if (config?.natal_source_systems) {
     try {

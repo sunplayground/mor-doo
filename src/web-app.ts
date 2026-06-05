@@ -536,20 +536,6 @@ function renderTodayCyclesAndInsight(compass,cycles,insight){
     html+='</div></div>';
   }
 
-  html+='<div>';
-  html+='<p class="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-2">CYCLES</p>';
-  html+='<div class="rounded-2xl border border-zinc-100 bg-white p-4 space-y-3">';
-  if(cycles&&cycles.length>0){
-    cycles.forEach(function(c){
-      const dotColor=c.status==='active'?'bg-violet-500':c.status==='upcoming'?'bg-zinc-400':'bg-zinc-300';
-      const badge=c.status==='active'?'bg-violet-100 text-violet-700':c.status==='upcoming'?'bg-zinc-100 text-zinc-500':'bg-zinc-50 text-zinc-400';
-      html+='<div class="flex items-center gap-3"><div class="w-2 h-2 rounded-full flex-shrink-0 '+dotColor+'"></div><div class="flex-1 min-w-0"><div class="text-sm font-medium text-zinc-900 truncate">'+esc(c.name)+'</div><div class="text-xs text-zinc-400">'+esc(c.dates)+'</div></div><span class="text-[10px] px-2 py-0.5 rounded-full font-semibold flex-shrink-0 '+badge+'">'+(c.status==='active'?'ACTIVE':c.status==='upcoming'?'UPCOMING':'WINDING')+'</span></div>';
-    });
-  } else {
-    html+='<div class="flex items-center gap-3"><div class="w-2 h-2 rounded-full bg-violet-500"></div><div class="flex-1"><div class="text-sm font-medium text-zinc-900">ดวงชะตาประจำวัน</div><div class="text-xs text-zinc-400">อัปเดตทุกวัน</div></div><span class="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-violet-100 text-violet-700">ACTIVE</span></div>';
-  }
-  html+='<div class="flex gap-2 mt-3 pt-3 border-t border-zinc-50"><button class="flex-1 py-2.5 rounded-xl bg-zinc-900 text-white font-semibold text-sm active:scale-[0.98]" onclick="quickFeature(\\'birth-chart\\')">ผูกดวง</button><button class="flex-1 py-2.5 rounded-xl border border-zinc-200 text-zinc-600 font-semibold text-sm active:scale-[0.98]" onclick="quickFeature(\\'bad-year\\')">ปีชง</button></div>';
-  html+='</div></div>';
 
   if(insight){
     html+='<div>';
